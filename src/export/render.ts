@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { sceneBounds } from '@/scene/objects'
 import { updateLineMaterials } from '@/render/outline'
 import type { ViewPreset } from '@/store/uiStore'
-import { VIEW_DIRS } from '@/scene/CameraRig'
+import { VIEW_DIRS } from '@/scene/views'
 import { extraPoints, labelHooks, renderApi } from './bridge'
 
 export interface ViewOpts {

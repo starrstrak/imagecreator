@@ -3,7 +3,7 @@
 import * as THREE from 'three'
 import { registerPart } from '@/core/registry'
 import { bool, choice, int, num, pos } from '@/core/paramSchema'
-import type { ParamValues, PartVariant } from '@/core/types'
+import type { Handle, ParamValues, PartVariant } from '@/core/types'
 import { buildWheel } from './rim'
 import type { Body } from './body'
 
@@ -30,6 +30,7 @@ export const RIMS: PartVariant[] = [
 
 registerPart({
   type: 'vehicule.wheels',
+  handles: (p): Handle[] => [{ id: 'd', label: 'Diamètre', position: [p.frontX as number, p.tireDia as number, (p.trackFront as number) / 2 + (p.tireWidth as number) / 2], axis: [0, 1, 0], param: 'tireDia', ratio: 1 }, { id: 'w', label: 'Largeur du pneu', position: [p.frontX as number, (p.tireDia as number) / 2, (p.trackFront as number) / 2 + (p.tireWidth as number)], axis: [0, 0, 1], param: 'tireWidth', ratio: 1 }],
   label: 'Roues et jantes',
   category: 'roues',
   icon: '🛞',

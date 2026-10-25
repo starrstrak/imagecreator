@@ -14,6 +14,7 @@ const DE = 'Détails'
 // ---------------------------------------------------------------- Hélice
 registerPart({
   type: 'vehicule.propeller',
+  handles: (p): Handle[] => [{ id: 'd', label: 'Diamètre', position: [0, (p.dia as number) / 2, 0], axis: [0, 1, 0], param: 'dia', ratio: 2 }],
   label: 'Hélice',
   category: 'special',
   icon: '🌀',
@@ -84,6 +85,7 @@ registerPart({
 // ---------------------------------------------------------------- Chenilles
 registerPart({
   type: 'vehicule.tracks',
+  handles: (p): Handle[] => [{ id: 'l', label: 'Longueur', position: [(p.len as number) / 2, (p.h as number) / 2, p.lat as number], axis: [1, 0, 0], param: 'len', ratio: 2 }, { id: 'h', label: 'Hauteur', position: [0, p.h as number, p.lat as number], axis: [0, 1, 0], param: 'h', ratio: 1 }],
   label: 'Chenilles',
   category: 'special',
   icon: '⛓️',
@@ -257,6 +259,7 @@ registerPart({
 // ---------------------------------------------------------------- Caisson / remorque / citerne
 registerPart({
   type: 'vehicule.cargo',
+  handles: (p): Handle[] => [{ id: 'l', label: 'Longueur', position: [(p.len as number) / 2, (p.h as number) / 2, 0], axis: [1, 0, 0], param: 'len', ratio: 2 }, { id: 'w', label: 'Largeur', position: [0, (p.h as number) / 2, (p.w as number) / 2], axis: [0, 0, 1], param: 'w', ratio: 2 }, { id: 'h', label: 'Hauteur', position: [0, (p.h as number) + 0.05, 0], axis: [0, 1, 0], param: 'h', ratio: 1 }],
   label: 'Caisson de camion',
   category: 'special',
   icon: '📦',
@@ -399,6 +402,7 @@ registerPart({
 // ---------------------------------------------------------------- Grue / bras
 registerPart({
   type: 'vehicule.crane',
+  handles: (p): Handle[] => [{ id: 'm', label: 'Mât', position: [0, (p.base as number) + 0.06, 0], axis: [0, 1, 0], param: 'base', ratio: 1 }],
   label: 'Grue / bras articulé',
   category: 'special',
   icon: '🏗️',

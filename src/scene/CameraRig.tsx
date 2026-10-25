@@ -1,50 +1,51 @@
 // Caméra perspective / orthographique, vues prédéfinies (face, côté, dessus, 3/4) et cadrage automatique.
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { useThree } from '@react-three/fiber'
+import { VIEW_DIRS } from './views'
+import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, OrthographicCamera, PerspectiveCamera } from '@react-three/drei'
 import { useUi, type ViewPreset } from '@/store/uiStore'
 import { useScene } from '@/store/sceneStore'
 import { sceneBounds } from './objects'
+import { fittedCamera } from '@/export/render'
+export { VIEW_DIRS } from './views'
 
-/** Direction de la caméra (depuis le centre) pour chaque vue. Avant du véhicule = +X. */
-export const VIEW_DIRS: Record<ViewPreset, THREE.Vector3> = {
-  front: new THREE.Vector3(1, 0.04, 0),
-  side: new THREE.Vector3(0, 0.04, 1),
-  top: new THREE.Vector3(0, 1, 0.0005),
-  'three-quarter': new THREE.Vector3(0.75, 0.42, 0.85),
+export interface CamPose {
+  pos: THREE.Vector3
+  target: THREE.Vector3
+  zoom?: number
 }
 
-export function frameCamera(
-  camera: THREE.Camera,
-  controls: { target: THREE.Vector3; update: () => void } | null,
-  preset: ViewPreset,
-  size: { width: number; height: number },
-  margin = 1.15,
-): void {
+/** Pose de caméra (position, cible, zoom) qui cadre exactement la création dans la fenêtre. */
+export function computePose(camera: THREE.Camera, preset: ViewPreset, size: { width: number; height: number }, margin = 1.12): CamPose {
   const box = sceneBounds()
   if (box.isEmpty()) box.set(new THREE.Vector3(-2, 0, -1), new THREE.Vector3(2, 1.5, 1))
   const center = box.getCenter(new THREE.Vector3())
-  const radius = Math.max(0.5, box.getSize(new THREE.Vector3()).length() / 2)
-  const dir = VIEW_DIRS[preset].clone().normalize()
   const persp = camera as THREE.PerspectiveCamera
-  const ortho = camera as THREE.OrthographicCamera
-  if (persp.isPerspectiveCamera) {
-    // demi-angle de champ limitant (vertical ou horizontal selon le format de la fenêtre)
-    const tanV = Math.tan((persp.fov * Math.PI) / 360)
-    const tanH = tanV * (size.width / Math.max(1, size.height))
-    const half = Math.atan(Math.min(tanV, tanH))
-    const dist = (radius / Math.sin(half)) * margin * 0.62
-    camera.position.copy(center).addScaledVector(dir, dist)
-  } else {
-    camera.position.copy(center).addScaledVector(dir, radius * 4)
-    ortho.zoom = (Math.min(size.width, size.height) / (2 * radius * margin)) * 1.05
-    ortho.near = -radius * 20
-    ortho.far = radius * 20
-    ortho.updateProjectionMatrix()
+  // Même calcul de cadrage que l'export : la création remplit exactement la fenêtre
+  const fit = fittedCamera(preset, persp.isPerspectiveCamera ? 'persp' : 'ortho', size.width / Math.max(1, size.height), useUi.getState().showDims, margin)
+  if (persp.isPerspectiveCamera) return { pos: fit.position.clone(), target: center }
+  const f = fit as THREE.OrthographicCamera
+  const r = box.getSize(new THREE.Vector3()).length()
+  // recentre sur le milieu de l'emprise projetée
+  const off = new THREE.Vector3((f.left + f.right) / 2, (f.top + f.bottom) / 2, 0).applyQuaternion(f.quaternion)
+  const target = center.clone().add(off)
+  return { pos: target.clone().addScaledVector(VIEW_DIRS[preset].clone().normalize(), r * 2), target, zoom: size.height / (f.top - f.bottom) }
+}
+
+/** Applique une pose immédiatement. */
+export function applyPose(camera: THREE.Camera, controls: { target: THREE.Vector3; update: () => void } | null, pose: CamPose): void {
+  camera.position.copy(pose.pos)
+  controls?.target.copy(pose.target)
+  const o = camera as THREE.OrthographicCamera
+  if (pose.zoom !== undefined && o.isOrthographicCamera) {
+    o.zoom = pose.zoom
+    const r = 500
+    o.near = -r
+    o.far = r
+    o.updateProjectionMatrix()
   }
-  controls?.target.copy(center)
-  camera.lookAt(center)
+  camera.lookAt(pose.target)
   controls?.update()
 }
 
@@ -54,14 +55,41 @@ export function CameraRig() {
   const controls = useThree((s) => s.controls) as unknown as { target: THREE.Vector3; update: () => void } | null
   const camera = useThree((s) => s.camera)
   const size = useThree((s) => s.size)
+  const invalidate = useThree((s) => s.invalidate)
   const moduleId = useScene((s) => s.scene.module)
+  const anim = useRef<{ from: CamPose; to: CamPose; t: number } | null>(null)
+  const last = useRef({ projection, moduleId, cam: camera })
 
-  // Cadrage à chaque demande de vue, changement de projection ou de création
+  // Cadrage à chaque demande de vue, changement de projection ou de création (transition douce entre deux vues)
   useEffect(() => {
-    const t = setTimeout(() => frameCamera(camera, controls, viewRequest.preset, size), 30)
+    const t = setTimeout(() => {
+      const to = computePose(camera, viewRequest.preset, size)
+      const smooth = last.current.projection === projection && last.current.moduleId === moduleId && last.current.cam === camera && controls
+      last.current = { projection, moduleId, cam: camera }
+      if (!smooth) {
+        applyPose(camera, controls, to)
+        invalidate()
+        return
+      }
+      anim.current = { from: { pos: camera.position.clone(), target: controls!.target.clone(), zoom: (camera as THREE.OrthographicCamera).zoom }, to, t: 0 }
+      invalidate()
+    }, 30)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [viewRequest.id, projection, controls, camera, moduleId])
+
+  useFrame((_, dt) => {
+    const a = anim.current
+    if (!a) return
+    a.t = Math.min(1, a.t + dt / 0.5)
+    const k = a.t < 0.5 ? 4 * a.t ** 3 : 1 - (-2 * a.t + 2) ** 3 / 2
+    const pos = a.from.pos.clone().lerp(a.to.pos, k)
+    const target = a.from.target.clone().lerp(a.to.target, k)
+    const zoom = a.to.zoom !== undefined && a.from.zoom !== undefined ? a.from.zoom + (a.to.zoom - a.from.zoom) * k : undefined
+    applyPose(camera, controls, { pos, target, zoom })
+    if (a.t >= 1) anim.current = null
+    invalidate()
+  })
 
   return (
     <>

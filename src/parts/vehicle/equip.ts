@@ -273,6 +273,7 @@ registerPart({
 // ---------------------------------------------------------------- Galerie de toit
 registerPart({
   type: 'vehicule.rack',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Largeur', position: [0, (p.h as number) + 0.03, (p.w as number) / 2], axis: [0, 0, 1], param: 'w', ratio: 2 }, { id: 'l', label: 'Longueur', position: [(p.len as number) / 2, (p.h as number) + 0.03, 0], axis: [1, 0, 0], param: 'len', ratio: 2 }],
   label: 'Barres / galerie de toit',
   category: 'equipements',
   icon: '🧳',
@@ -351,6 +352,7 @@ registerPart({
 // ---------------------------------------------------------------- Marchepied / jupe
 registerPart({
   type: 'vehicule.sideskirt',
+  handles: (p): Handle[] => [{ id: 'l', label: 'Longueur', position: [(p.len as number) / 2, 0, (p.d as number) / 2], axis: [1, 0, 0], param: 'len', ratio: 2 }],
   label: 'Marchepied / jupe latérale',
   category: 'carrosserie',
   icon: '▬',

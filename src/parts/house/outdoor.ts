@@ -23,6 +23,7 @@ const wallFaceSchema = () => [
 // ---------------------------------------------------------------- Balcon
 registerPart({
   type: 'house.balcony',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Largeur', position: [(p.w as number) / 2, 0, (p.d as number) / 2], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'd', label: 'Profondeur', position: [0, 0, p.d as number], axis: [0, 0, 1], param: 'd', ratio: 1 }],
   label: 'Balcon',
   category: 'exterieur',
   icon: '🏙️',
@@ -200,6 +201,7 @@ registerPart({
 // ---------------------------------------------------------------- Cheminée
 registerPart({
   type: 'house.chimney',
+  handles: (p): Handle[] => [{ id: 'h', label: 'Hauteur', position: [0, p.rise as number, 0], axis: [0, 1, 0], param: 'rise', ratio: 1 }],
   planHide: true,
   label: 'Cheminée',
   category: 'toit',
@@ -343,6 +345,7 @@ registerPart({
 // ---------------------------------------------------------------- Piscine
 registerPart({
   type: 'house.pool',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Longueur', position: [(p.w as number) / 2, 0.1, 0], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'd', label: 'Largeur', position: [0, 0.1, (p.d as number) / 2], axis: [0, 0, 1], param: 'd', ratio: 2 }],
   label: 'Piscine',
   category: 'jardin',
   icon: '🏊',
@@ -441,6 +444,7 @@ registerPart({
 // ---------------------------------------------------------------- Clôture
 registerPart({
   type: 'house.fence',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Longueur', position: [(p.w as number) / 2, (p.h as number), p.layout === 'ligne' ? 0 : -(p.d as number) / 2], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'h', label: 'Hauteur', position: [-(p.w as number) / 2, p.h as number, p.layout === 'ligne' ? 0 : -(p.d as number) / 2], axis: [0, 1, 0], param: 'h', ratio: 1 }],
   label: 'Clôture / mur',
   category: 'jardin',
   icon: '🚧',
@@ -561,6 +565,7 @@ registerPart({
 // ---------------------------------------------------------------- Arbres
 registerPart({
   type: 'house.tree',
+  handles: (p): Handle[] => [{ id: 'c', label: 'Couronne', position: [p.crownR as number, (p.trunkH as number) + (p.crownR as number) * 0.6, 0], axis: [1, 0, 0], param: 'crownR', ratio: 1 }, { id: 't', label: 'Tronc', position: [0, p.trunkH as number, 0], axis: [0, 1, 0], param: 'trunkH', ratio: 1 }],
   label: 'Arbre',
   category: 'jardin',
   icon: '🌳',
@@ -655,6 +660,7 @@ registerPart({
 
 registerPart({
   type: 'house.bush',
+  handles: (p): Handle[] => [{ id: 'l', label: 'Longueur', position: [(p.len as number) / 2, (p.h as number) / 2, 0], axis: [1, 0, 0], param: 'len', ratio: 2 }, { id: 'h', label: 'Hauteur', position: [0, p.h as number, 0], axis: [0, 1, 0], param: 'h', ratio: 1 }],
   label: 'Haie / buisson',
   category: 'jardin',
   icon: '🌿',
@@ -710,6 +716,7 @@ registerPart({
 // ---------------------------------------------------------------- Jardin (pelouse, allée)
 registerPart({
   type: 'house.ground',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Largeur', position: [(p.w as number) / 2, 0.1, 0], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'd', label: 'Profondeur', position: [0, 0.1, (p.d as number) / 2], axis: [0, 0, 1], param: 'd', ratio: 2 }],
   planHide: true,
   label: 'Terrain / jardin',
   category: 'jardin',
@@ -776,6 +783,7 @@ registerPart({
 // ---------------------------------------------------------------- Terrasse et pergola
 registerPart({
   type: 'house.terrace',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Largeur', position: [(p.w as number) / 2, p.raise as number, (p.d as number) / 2], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'd', label: 'Profondeur', position: [0, p.raise as number, p.d as number], axis: [0, 0, 1], param: 'd', ratio: 1 }],
   label: 'Terrasse',
   category: 'jardin',
   icon: '🪵',
@@ -840,6 +848,7 @@ registerPart({
 
 registerPart({
   type: 'house.pergola',
+  handles: (p): Handle[] => [{ id: 'w', label: 'Largeur', position: [(p.w as number) / 2, p.h as number, 0], axis: [1, 0, 0], param: 'w', ratio: 2 }, { id: 'd', label: 'Profondeur', position: [0, p.h as number, (p.d as number) / 2], axis: [0, 0, 1], param: 'd', ratio: 2 }, { id: 'h', label: 'Hauteur', position: [0, (p.h as number) + 0.3, 0], axis: [0, 1, 0], param: 'h', ratio: 1 }],
   label: 'Pergola / abri',
   category: 'jardin',
   icon: '⛱️',
