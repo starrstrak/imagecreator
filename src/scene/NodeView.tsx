@@ -8,7 +8,8 @@ import { getPart } from '@/core/registry'
 import { resolveNode } from '@/core/resolve'
 import { hashOf } from '@/utils/hash'
 import { deg } from '@/utils/math'
-import { addOutlines, applyFill, applyHidden, disposeObject } from '@/render/outline'
+import type { ChildInfo } from '@/core/types'
+import { addOutlines, applyFill, applyHidden, applyPlan, disposeObject } from '@/render/outline'
 import { objectRegistry } from './objects'
 import { HandleDots } from './HandleDots'
 
@@ -38,10 +39,24 @@ function NodeViewImpl({ id, ghost = false }: Props) {
   const hiddenLines = useUi((s) => s.hiddenLines)
   const showHandles = useUi((s) => s.showHandles)
   const playing = useUi((s) => s.playing)
+  const planMode = useUi((s) => s.planMode)
 
   const res = resolveNode(nodes, id)
   const def = res ? getPart(res.node.type) : undefined
   const paramsKey = res ? hashOf(res.params) : ''
+  // Enfants dont la géométrie dépend (ex. murs percés par les ouvertures)
+  const kidIds = order.filter((k) => nodes[k]?.parentId === id)
+  const kidsInfo = useMemo(() => {
+    if (!def?.consumesChildren) return undefined
+    const out: ChildInfo[] = []
+    for (const k of kidIds) {
+      const r = resolveNode(nodes, k)
+      if (r && !r.node.hidden) out.push({ type: r.node.type, params: r.params, pos: r.pos, rot: r.rot })
+    }
+    return out
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [def, nodes, order, id])
+  const kidsKey = kidsInfo ? hashOf(kidsInfo) : ''
   // La construction dépend du parent uniquement si la pièce le suit
   const followed = !!(res && def?.fit && res.node.follow && res.parentProvided)
   const parentKey = followed ? ((res!.parentProvided as { key?: string }).key ?? '') : ''
@@ -50,7 +65,7 @@ function NodeViewImpl({ id, ghost = false }: Props) {
   const built = useMemo(() => {
     if (!res || !def) return null
     try {
-      const obj = def.build(res.params, { parent: followed ? res.parentProvided : undefined })
+      const obj = def.build(res.params, { parent: followed ? res.parentProvided : undefined, children: kidsInfo })
       addOutlines(obj)
       return obj
     } catch (err) {
@@ -58,7 +73,7 @@ function NodeViewImpl({ id, ghost = false }: Props) {
       return null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [def, paramsKey, parentKey, followed])
+  }, [def, paramsKey, parentKey, followed, kidsKey])
 
   useEffect(
     () => () => {
@@ -78,8 +93,9 @@ function NodeViewImpl({ id, ghost = false }: Props) {
     for (const inst of instances) {
       applyFill(inst, renderMode)
       applyHidden(inst, hiddenLines)
+      applyPlan(inst, planMode)
     }
-  }, [instances, renderMode, hiddenLines])
+  }, [instances, renderMode, hiddenLines, planMode])
 
   const animParam = def?.animate?.param
   const animValue = res && animParam ? (res.params[animParam] as number) : 0
@@ -117,7 +133,7 @@ function NodeViewImpl({ id, ghost = false }: Props) {
       position={res.pos}
       rotation={[deg(res.rot[0]), deg(res.rot[1]), deg(res.rot[2])]}
       scale={s}
-      visible={!n.hidden}
+      visible={!n.hidden && !(planMode && def.category === 'toit')}
       onClick={(e) => {
         if (e.delta > 4) return
         e.stopPropagation()

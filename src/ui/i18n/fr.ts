@@ -41,6 +41,7 @@ export const fr = {
   hiddenLines: 'Lignes cachées',
   grid: 'Grille',
   dims: 'Cotes',
+  plan: 'Plan',
   handles: 'Poignées',
   move: 'Déplacer',
   rotate: 'Pivoter',

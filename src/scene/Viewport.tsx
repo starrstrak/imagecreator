@@ -10,6 +10,7 @@ import { CameraRig } from './CameraRig'
 import { Gizmo } from './Gizmo'
 import { objectRegistry, sceneRoot } from './objects'
 import { Dimensions } from '@/render/Dimensions'
+import { renderApi } from '@/export/bridge'
 
 /** Met à jour l'épaisseur de trait et la résolution à chaque image. */
 function LineUpdater() {
@@ -19,6 +20,19 @@ function LineUpdater() {
     const v = gl.getDrawingBufferSize(new THREE.Vector2())
     updateLineMaterials(width, v.x, v.y, gl.getPixelRatio())
   })
+  return null
+}
+
+/** Expose le moteur de rendu et la scène au module d'export. */
+function ExportBridge() {
+  const gl = useThree((s) => s.gl)
+  const scene = useThree((s) => s.scene)
+  useEffect(() => {
+    renderApi.current = { gl, scene }
+    return () => {
+      renderApi.current = null
+    }
+  }, [gl, scene])
   return null
 }
 
@@ -97,6 +111,7 @@ export function Viewport() {
       <color attach="background" args={['#ffffff']} />
       <CameraRig />
       <LineUpdater />
+      <ExportBridge />
       <Lights />
       {showGrid && <gridHelper args={[60, 60, '#c9d3e3', '#e4eaf3']} position={[0, -0.001, 0]} />}
       <Root />

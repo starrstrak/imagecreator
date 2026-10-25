@@ -1,6 +1,6 @@
 // Panneau de réglages généré AUTOMATIQUEMENT à partir d'un schéma de paramètres.
 import { useState } from 'react'
-import type { ChoiceParam, NumberParam, ParamSchema, ParamValue, ParamValues } from '@/core/types'
+import type { ChoiceParam, NumberParam, ParamSchema, ParamValue, ParamValues, TextParam } from '@/core/types'
 import { useUi } from '@/store/uiStore'
 import { fr } from '@/ui/i18n/fr'
 
@@ -91,6 +91,22 @@ function Choice({ s, value, onChange, big, disabled }: { s: ChoiceParam; value: 
   )
 }
 
+function TextField({ s, value, onChange, disabled }: { s: TextParam; value: string; onChange: (v: string) => void; disabled?: boolean }) {
+  return (
+    <div className="py-1.5">
+      <div className="mb-1 text-sm font-medium text-ink" title={s.tip}>{s.label}</div>
+      <input
+        type="text"
+        className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+        value={value}
+        maxLength={s.maxLength ?? 80}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </div>
+  )
+}
+
 function Toggle({ label, tip, value, onChange, disabled }: { label: string; tip?: string; value: boolean; onChange: (v: boolean) => void; disabled?: boolean }) {
   return (
     <label className="flex cursor-pointer items-center justify-between py-1.5 text-sm font-medium text-ink" title={tip}>
@@ -142,6 +158,8 @@ export function ParamPanel({ schema, values, onChange, linked, openGroups = [], 
                       <Slider key={s.key} s={s} value={values[s.key] as number} onChange={(v) => onChange(s.key, v)} linked={!!linked?.has(s.key)} disabled={disabled} />
                     ) : s.kind === 'choice' ? (
                       <Choice key={s.key} s={s} value={values[s.key] as string} onChange={(v) => onChange(s.key, v)} big={easy} disabled={disabled} />
+                    ) : s.kind === 'text' ? (
+                      <TextField key={s.key} s={s} value={values[s.key] as string} onChange={(v) => onChange(s.key, v)} disabled={disabled} />
                     ) : (
                       <Toggle key={s.key} label={s.label} tip={s.tip} value={values[s.key] as boolean} onChange={(v) => onChange(s.key, v)} disabled={disabled} />
                     ),

@@ -49,7 +49,7 @@ export function resolveNode(nodes: Record<string, SceneNode>, id: string): Resol
     linked,
     pos,
     rot,
-    provided: def?.provide ? def.provide(params) : undefined,
+    provided: def?.provide ? def.provide(params, node.follow ? parent?.provided : undefined) : undefined,
     parentProvided: parent?.provided,
   }
   cache.set(id, { node, parent, res })

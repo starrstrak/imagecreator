@@ -1,5 +1,5 @@
 // Fabriques déclaratives pour écrire un schéma de paramètres en une ligne.
-import type { BoolParam, ChoiceOption, ChoiceParam, Level, NumberParam, ParamSchema, ParamValues } from './types'
+import type { BoolParam, ChoiceOption, ChoiceParam, Level, NumberParam, ParamSchema, ParamValues, TextParam } from './types'
 
 interface Opts {
   tip?: string
@@ -76,6 +76,10 @@ export function choice(
   }
 }
 
+export function text(key: string, label: string, def: string, o: Opts & { maxLength?: number } = {}): TextParam {
+  return { kind: 'text', key, label, tip: o.tip, group: o.group ?? 'Texte', level: o.level ?? 'easy', default: def, showIf: o.showIf, maxLength: o.maxLength }
+}
+
 /** Valeurs par défaut d'un schéma. */
 export function defaultsOf(schema: ParamSchema[]): ParamValues {
   const out: ParamValues = {}
@@ -91,6 +95,7 @@ export function normalizeParams(schema: ParamSchema[], values: ParamValues): Par
     if (v === undefined) out[s.key] = s.default
     else if (s.kind === 'number') out[s.key] = typeof v === 'number' && isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.default
     else if (s.kind === 'bool') out[s.key] = typeof v === 'boolean' ? v : s.default
+    else if (s.kind === 'text') out[s.key] = typeof v === 'string' ? v : s.default
     else out[s.key] = s.options.some((o) => o.value === v) ? v : s.default
   }
   return out

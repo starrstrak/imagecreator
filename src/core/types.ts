@@ -47,7 +47,12 @@ export interface ChoiceParam extends ParamBase {
   options: ChoiceOption[]
   default: string
 }
-export type ParamSchema = NumberParam | BoolParam | ChoiceParam
+export interface TextParam extends ParamBase {
+  kind: 'text'
+  default: string
+  maxLength?: number
+}
+export type ParamSchema = NumberParam | BoolParam | ChoiceParam | TextParam
 
 // ---------------------------------------------------------------------------
 // Pièces
@@ -71,9 +76,29 @@ export interface Provided {
   key: string
 }
 
+/** Description d'un enfant, transmise aux pièces qui en ont besoin (ex. mur percé par ses fenêtres). */
+export interface ChildInfo {
+  type: string
+  params: ParamValues
+  pos: Vec3
+  rot: Vec3
+}
+
+/** Cote affichée en mode plan CAD : repère local de la pièce. */
+export interface DimLine {
+  a: Vec3
+  b: Vec3
+  /** Décalage de la ligne de cote (perpendiculaire à a→b, direction `dir`) */
+  offset: number
+  dir: Vec3
+  label: string
+}
+
 export interface BuildContext {
   /** Données exposées par la pièce parente (uniquement si la pièce la « suit ») */
   parent?: unknown
+  /** Enfants directs visibles (seulement si la pièce déclare `consumesChildren`) */
+  children?: ChildInfo[]
 }
 
 /** Résultat de l'adaptation d'une pièce à sa pièce parente */
@@ -97,11 +122,15 @@ export interface PartDefinition {
   followsParent?: string[]
   /** Pièce sans enfant adaptables ? (par défaut false) */
   /** Données exposées aux enfants (fonctions de surface, ancrages…) */
-  provide?: (p: ParamValues) => unknown
+  provide?: (p: ParamValues, parentProvided?: unknown) => unknown
   /** Adaptation à la pièce parente (ex. jante qui suit la roue) */
   fit?: (parentProvided: unknown, own: ParamValues, parentParams: ParamValues) => FitResult
   /** Variantes prêtes à l'emploi : un clic règle plusieurs paramètres d'un coup */
   variants?: PartVariant[]
+  /** La géométrie dépend des enfants (ex. murs percés par les ouvertures) */
+  consumesChildren?: boolean
+  /** Cotes automatiques (mode plan CAD) */
+  dims?: (p: ParamValues) => DimLine[]
   /** Construit la géométrie paramétrique (repère local, mètres, Y vers le haut) */
   build: (p: ParamValues, ctx: BuildContext) => THREE.Object3D
   /** Poignées 3D */

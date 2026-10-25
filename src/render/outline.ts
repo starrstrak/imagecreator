@@ -10,6 +10,7 @@ import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 export const lineSettings = { width: 2.2, hidden: false, pixelRatio: 1, resolution: new THREE.Vector2(1, 1) }
 
 export const edgeMat = new LineMaterial({ color: 0x000000, linewidth: 2, worldUnits: false })
+export const dimMat = new LineMaterial({ color: 0x000000, linewidth: 1, worldUnits: false })
 export const hiddenMat = new LineMaterial({
   color: 0x555555,
   linewidth: 1,
@@ -148,6 +149,13 @@ export function applyFill(root: THREE.Object3D, mode: 'trait' | 'plein'): void {
   })
 }
 
+/** Mode plan : masque les éléments marqués `planHide` (dalle de toiture, muret…). */
+export function applyPlan(root: THREE.Object3D, plan: boolean): void {
+  root.traverse((o) => {
+    if (o.userData.planHide) o.visible = !plan
+  })
+}
+
 /** Affiche / masque les lignes cachées. */
 export function applyHidden(root: THREE.Object3D, on: boolean): void {
   root.traverse((o) => {
@@ -161,6 +169,8 @@ export function updateLineMaterials(width: number, resW: number, resH: number, p
   lineSettings.pixelRatio = pixelRatio
   edgeMat.linewidth = width * pixelRatio
   edgeMat.resolution.set(resW, resH)
+  dimMat.linewidth = Math.max(1, width * 0.45) * pixelRatio
+  dimMat.resolution.set(resW, resH)
   hiddenMat.linewidth = Math.max(1, width * 0.6) * pixelRatio
   hiddenMat.resolution.set(resW, resH)
   hiddenMat.dashSize = 6 * pixelRatio

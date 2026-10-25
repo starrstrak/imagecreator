@@ -13,6 +13,8 @@ interface UiState {
   showGrid: boolean
   showDims: boolean
   showHandles: boolean
+  /** Mode « plan CAD » : vue du dessus orthographique, toit masqué, cotes affichées */
+  planMode: boolean
   gizmo: GizmoMode
   moduleId: string
   category: string | null
@@ -25,6 +27,7 @@ interface UiState {
   toast: string | null
   set: (p: Partial<UiState>) => void
   goView: (preset: ViewPreset) => void
+  togglePlan: () => void
   notify: (msg: string) => void
 }
 
@@ -47,6 +50,7 @@ export const useUi = create<UiState>((set, get) => ({
   showGrid: true,
   showDims: false,
   showHandles: true,
+  planMode: false,
   gizmo: 'translate',
   moduleId: 'vehicule',
   category: null,
@@ -58,6 +62,12 @@ export const useUi = create<UiState>((set, get) => ({
   ...saved,
   set: (p) => set(p),
   goView: (preset) => set({ viewRequest: { preset, id: get().viewRequest.id + 1 } }),
+  togglePlan: () => {
+    const on = !get().planMode
+    if (on) set({ planMode: true, projection: 'ortho', showDims: true, hiddenLines: false })
+    else set({ planMode: false, showDims: false })
+    get().goView(on ? 'top' : 'three-quarter')
+  },
   notify: (msg) => {
     set({ toast: msg })
     setTimeout(() => get().toast === msg && set({ toast: null }), 2600)

@@ -80,6 +80,18 @@ registerPart({
     pos('archGap', 'Jeu autour des roues', 0.06, [0, 0.4], { group: ESS, unit: 'm', showIf: (p) => !!p.arches }),
   ],
   provide: (p) => makeBody(p),
+  dims: (p) => {
+    const L = p.length as number
+    const W = p.width as number
+    const H = p.height as number
+    const b = makeBody(p)
+    return [
+      { a: [-L / 2, 0, W / 2], b: [L / 2, 0, W / 2], offset: 0.6, dir: [0, 0, 1], label: `${L.toFixed(2)} m` },
+      { a: [L / 2, 0, -W / 2], b: [L / 2, 0, W / 2], offset: 0.6, dir: [1, 0, 0], label: `${W.toFixed(2)} m` },
+      { a: [-L / 2, 0, W / 2], b: [-L / 2, b.H, W / 2], offset: 0.6, dir: [-1, 0, 0], label: `${H.toFixed(2)} m` },
+      { a: [b.axleXs[0], 0, -W / 2], b: [b.axleXs[1] ?? b.axleXs[0], 0, -W / 2], offset: 0.6, dir: [0, 0, -1], label: `empattement ${((p.wheelbase as number)).toFixed(2)} m` },
+    ]
+  },
   build: (p) => {
     const body = makeBody(p)
     return mk(buildBodyGeometry(p, body), 'body', { edgeAngle: 38 })

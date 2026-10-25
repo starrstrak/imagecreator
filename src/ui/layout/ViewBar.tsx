@@ -61,6 +61,7 @@ export function ViewBar() {
           <Pill title={fr.hiddenLines} active={u.hiddenLines} onClick={() => u.set({ hiddenLines: !u.hiddenLines })}>┄</Pill>
           <Pill title={fr.grid} active={u.showGrid} onClick={() => u.set({ showGrid: !u.showGrid })}>▦</Pill>
           <Pill title={fr.dims} active={u.showDims} onClick={() => u.set({ showDims: !u.showDims })}>📏</Pill>
+          <Pill title={fr.plan} active={u.planMode} onClick={() => u.togglePlan()}>📐 {fr.plan}</Pill>
           <Pill title={fr.handles} active={u.showHandles} onClick={() => u.set({ showHandles: !u.showHandles })}>🔵</Pill>
           <Pill title={fr.playOpen} active={u.playing} onClick={() => u.set({ playing: !u.playing })}>{u.playing ? '⏸' : '▶️'}</Pill>
         </div>
