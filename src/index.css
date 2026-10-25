@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root { height: 100%; margin: 0; }
+body { font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif; color: #1f2430; background: #f4f7fb; overscroll-behavior: none; }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+input[type=range] { touch-action: pan-y; }
+/* Poignée de curseur plus grosse pour les doigts */
+input[type=range]::-webkit-slider-thumb { height: 22px; width: 22px; }
+input[type=range]::-moz-range-thumb { height: 22px; width: 22px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #c5cfdd; border-radius: 8px; }
