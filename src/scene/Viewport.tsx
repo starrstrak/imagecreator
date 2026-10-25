@@ -97,12 +97,30 @@ function Lights() {
   )
 }
 
+/** Rendu à la demande (économise la batterie) : toute modification de la création ou de l'interface redessine. */
+function Invalidator() {
+  const invalidate = useThree((s) => s.invalidate)
+  useEffect(() => {
+    const a = useScene.subscribe(() => invalidate())
+    const b = useUi.subscribe(() => invalidate())
+    const t = setInterval(invalidate, 1000) // filet de sécurité
+    return () => {
+      a()
+      b()
+      clearInterval(t)
+    }
+  }, [invalidate])
+  return null
+}
+
 export function Viewport() {
   const showGrid = useUi((s) => s.showGrid)
+  const playing = useUi((s) => s.playing)
   const select = useScene((s) => s.select)
   return (
     <Canvas
       flat
+      frameloop={playing ? 'always' : 'demand'}
       dpr={[1, 2]}
       gl={{ antialias: true, preserveDrawingBuffer: true }}
       style={{ touchAction: 'none', background: '#fff' }}
@@ -112,6 +130,7 @@ export function Viewport() {
       <CameraRig />
       <LineUpdater />
       <ExportBridge />
+      <Invalidator />
       <Lights />
       {showGrid && <gridHelper args={[60, 60, '#c9d3e3', '#e4eaf3']} position={[0, -0.001, 0]} />}
       <Root />

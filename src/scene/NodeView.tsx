@@ -133,7 +133,7 @@ function NodeViewImpl({ id, ghost = false }: Props) {
       position={res.pos}
       rotation={[deg(res.rot[0]), deg(res.rot[1]), deg(res.rot[2])]}
       scale={s}
-      visible={!n.hidden && !(planMode && def.category === 'toit')}
+      visible={!n.hidden && !(planMode && def.planHide)}
       onClick={(e) => {
         if (e.delta > 4) return
         e.stopPropagation()

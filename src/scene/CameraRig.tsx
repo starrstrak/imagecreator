@@ -30,7 +30,11 @@ export function frameCamera(
   const persp = camera as THREE.PerspectiveCamera
   const ortho = camera as THREE.OrthographicCamera
   if (persp.isPerspectiveCamera) {
-    const dist = (radius / Math.sin((persp.fov * Math.PI) / 360)) * margin * 0.8
+    // demi-angle de champ limitant (vertical ou horizontal selon le format de la fenêtre)
+    const tanV = Math.tan((persp.fov * Math.PI) / 360)
+    const tanH = tanV * (size.width / Math.max(1, size.height))
+    const half = Math.atan(Math.min(tanV, tanH))
+    const dist = (radius / Math.sin(half)) * margin * 0.62
     camera.position.copy(center).addScaledVector(dir, dist)
   } else {
     camera.position.copy(center).addScaledVector(dir, radius * 4)

@@ -193,6 +193,7 @@ export const useScene = create<SceneStore>((set, get) => {
     },
 
     removeNode: (id) => {
+      if (get().scene.nodes[id]?.locked) return // pièce verrouillée : on ne la supprime pas
       const ids = new Set(subtree(get().scene.nodes, id))
       apply((d) => {
         for (const i of ids) delete d.nodes[i]

@@ -216,6 +216,7 @@ function buildWing(p: ParamValues, w: RoofWing): THREE.Object3D {
 
 registerPart({
   type: 'house.roof',
+  planHide: true,
   label: 'Toit',
   category: 'toit',
   icon: '🏠',

@@ -58,6 +58,8 @@ function Label({ text, at }: { text: string; at: THREE.Vector3 }) {
 export function Dimensions() {
   const show = useUi((s) => s.showDims)
   const rev = useScene((s) => s.rev)
+  const selectedId = useScene((s) => s.selectedId)
+  const planMode = useUi((s) => s.planMode)
   const [dims, setDims] = useState<WorldDim[]>([])
 
   useEffect(() => {
@@ -74,9 +76,13 @@ export function Dimensions() {
         const def = res && getPart(res.node.type)
         const obj = objectRegistry.get(id)
         if (!res || !def?.dims || !obj || res.node.hidden) continue
+        if (def.dimsSelectedOnly && id !== selectedId) continue
+        if (planMode && def.planHide) continue
         obj.updateWorldMatrix(true, false)
         const m = obj.matrixWorld
         for (const d of def.dims(res.params)) {
+          // en plan (vue du dessus) les cotes verticales n'ont pas de sens
+          if (planMode && Math.abs(d.b[1] - d.a[1]) > 0.5 * Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1], d.b[2] - d.a[2])) continue
           const a = new THREE.Vector3(...d.a).applyMatrix4(m)
           const b = new THREE.Vector3(...d.b).applyMatrix4(m)
           const dir = new THREE.Vector3(...d.dir).transformDirection(m).multiplyScalar(d.offset)
@@ -87,7 +93,7 @@ export function Dimensions() {
       extraPoints.current = out.flatMap((d) => [d.a, d.b, d.a2, d.b2])
     }, 60)
     return () => clearTimeout(t)
-  }, [show, rev])
+  }, [show, rev, selectedId, planMode])
 
   const geo = useMemo(() => {
     if (!dims.length) return null

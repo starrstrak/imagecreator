@@ -1,0 +1,11 @@
+{
+  "name": "Atelier 3D à colorier",
+  "short_name": "Atelier 3D",
+  "description": "Construis un véhicule ou une maison en 3D, puis imprime-le à colorier.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2f7df6",
+  "lang": "fr",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

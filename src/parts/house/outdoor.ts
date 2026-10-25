@@ -200,6 +200,7 @@ registerPart({
 // ---------------------------------------------------------------- Cheminée
 registerPart({
   type: 'house.chimney',
+  planHide: true,
   label: 'Cheminée',
   category: 'toit',
   icon: '🏭',
@@ -270,6 +271,7 @@ registerPart({
 // ---------------------------------------------------------------- Panneaux solaires
 registerPart({
   type: 'house.solar',
+  planHide: true,
   label: 'Panneaux solaires',
   category: 'toit',
   icon: '☀️',
@@ -708,6 +710,7 @@ registerPart({
 // ---------------------------------------------------------------- Jardin (pelouse, allée)
 registerPart({
   type: 'house.ground',
+  planHide: true,
   label: 'Terrain / jardin',
   category: 'jardin',
   icon: '🟩',
@@ -847,7 +850,7 @@ registerPart({
     pos('d', 'Profondeur', 3, [1, 15], { group: FO, level: 'easy', unit: 'm' }),
     pos('h', 'Hauteur', 2.6, [1.5, 6], { group: FO, level: 'easy', unit: 'm' }),
     pos('post', 'Section des poteaux', 0.12, [0.04, 0.5], { group: FO, unit: 'm' }),
-    int('slats', 'Nombre de lattes', 10, [2, 40], { group: DE, showIf: (p) => p.kind === 'pergola' }),
+    int('slats', 'Nombre de lattes', 6, [2, 40], { group: DE, showIf: (p) => p.kind === 'pergola' }),
     num('slope', 'Pente du toit', 5, [0, 30], { group: DE, step: 1, unit: '°', showIf: (p) => p.kind !== 'pergola' }),
   ],
   build: (p) => {

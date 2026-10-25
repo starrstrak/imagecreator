@@ -35,7 +35,8 @@ function Dot({ nodeId, h }: { nodeId: string; h: Handle }) {
     if (!m || !m.parent) return
     m.getWorldPosition(_v)
     const ortho = (camera as THREE.OrthographicCamera).isOrthographicCamera
-    const px = ortho ? 10 / (camera as THREE.OrthographicCamera).zoom : _v.distanceTo(camera.position) * 0.02
+    const coarse = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches ? 1.6 : 1
+    const px = (ortho ? 10 / (camera as THREE.OrthographicCamera).zoom : _v.distanceTo(camera.position) * 0.02) * coarse
     const ws = m.parent.getWorldScale(new THREE.Vector3())
     m.scale.set(px / (ws.x || 1), px / (ws.y || 1), px / (ws.z || 1))
   })

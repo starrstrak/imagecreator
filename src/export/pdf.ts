@@ -1,5 +1,5 @@
 // Export PDF A4 (jsPDF) et PNG haute résolution.
-import { jsPDF } from 'jspdf'
+import type { jsPDF } from 'jspdf'
 import { composePage, pageSize, type PageOpts } from './compose'
 
 function safeName(s: string): string {
@@ -15,7 +15,9 @@ function download(blob: Blob, name: string): void {
 }
 
 /** Construit le PDF A4 (vectoriel pour la page, image haute résolution pour le dessin). */
-export function buildPdf(o: PageOpts, dpi: number): jsPDF {
+export async function buildPdf(o: PageOpts, dpi: number): Promise<jsPDF> {
+  // jsPDF est chargé à la demande : l'application démarre plus vite
+  const { jsPDF } = await import('jspdf')
   const { w, h } = pageSize(o.orientation)
   const canvas = composePage(o, dpi)
   const pdf = new jsPDF({ orientation: o.orientation === 'portrait' ? 'portrait' : 'landscape', unit: 'mm', format: 'a4', compress: true })
@@ -24,13 +26,13 @@ export function buildPdf(o: PageOpts, dpi: number): jsPDF {
   return pdf
 }
 
-export function exportPdf(o: PageOpts, dpi: number): void {
-  buildPdf(o, dpi).save(`${safeName(o.title)}.pdf`)
+export async function exportPdf(o: PageOpts, dpi: number): Promise<void> {
+  ;(await buildPdf(o, dpi)).save(`${safeName(o.title)}.pdf`)
 }
 
 /** Ouvre le PDF dans un nouvel onglet pour l'imprimer. */
-export function openPdfForPrint(o: PageOpts, dpi: number): void {
-  const url = buildPdf(o, dpi).output('bloburl')
+export async function openPdfForPrint(o: PageOpts, dpi: number): Promise<void> {
+  const url = (await buildPdf(o, dpi)).output('bloburl')
   window.open(url as unknown as string, '_blank')
 }
 

@@ -129,6 +129,10 @@ export interface PartDefinition {
   variants?: PartVariant[]
   /** La géométrie dépend des enfants (ex. murs percés par les ouvertures) */
   consumesChildren?: boolean
+  /** Pièce masquée en mode plan (toit, jardin…) */
+  planHide?: boolean
+  /** Les cotes de cette pièce ne s'affichent que lorsqu'elle est sélectionnée */
+  dimsSelectedOnly?: boolean
   /** Cotes automatiques (mode plan CAD) */
   dims?: (p: ParamValues) => DimLine[]
   /** Construit la géométrie paramétrique (repère local, mètres, Y vers le haut) */

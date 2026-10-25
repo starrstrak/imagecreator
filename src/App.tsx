@@ -58,7 +58,11 @@ export function App() {
         } catch {
           st.newScene(moduleId)
         }
-      } else st.newScene(moduleId)
+      } else {
+        st.newScene(moduleId)
+        // Premier lancement : on propose les modèles de départ
+        useUi.getState().set({ showGallery: true })
+      }
       startAutosave()
       setReady(true)
       useUi.getState().goView(getModule(useScene.getState().scene.module)?.defaultView ?? 'three-quarter')

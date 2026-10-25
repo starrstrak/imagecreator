@@ -65,6 +65,7 @@ export function openingOffsets(p: ParamValues): number[] {
 
 registerPart({
   type: 'house.opening',
+  dimsSelectedOnly: true,
   label: 'Porte / fenêtre',
   category: 'ouvertures',
   icon: '🪟',
