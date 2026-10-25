@@ -33,6 +33,7 @@ interface SceneStore {
   duplicateNode: (id: string) => string | null
   replaceType: (id: string, type: string) => void
   setParam: (id: string, key: string, v: ParamValue) => void
+  setParams: (id: string, patch: Record<string, ParamValue>) => void
   setCommon: (id: string, key: string, v: ParamValue) => void
   setTransform: (id: string, t: { pos?: Vec3; rot?: Vec3; scale?: Vec3 }) => void
   setFlag: (id: string, flag: 'locked' | 'hidden' | 'follow', v: boolean) => void
@@ -245,6 +246,12 @@ export const useScene = create<SceneStore>((set, get) => {
         const n = d.nodes[id]
         if (n && !n.locked) n.params[key] = v
       }, `p:${id}:${key}`),
+
+    setParams: (id, patch) =>
+      apply((d) => {
+        const n = d.nodes[id]
+        if (n && !n.locked) Object.assign(n.params, patch)
+      }),
 
     setCommon: (id, key, v) =>
       apply((d) => {

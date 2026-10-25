@@ -102,6 +102,26 @@ export function Inspector() {
         </label>
       )}
 
+      {def.variants && (
+        <div>
+          <div className="mb-1 text-sm font-bold text-slate-700">Choisir un type</div>
+          <div className="grid grid-cols-3 gap-1.5">
+            {def.variants.map((v) => (
+              <button
+                key={v.id}
+                disabled={node.locked}
+                title={v.label}
+                onClick={() => st().setParams(id, v.params)}
+                className="flex flex-col items-center rounded-xl border-2 border-slate-200 bg-white px-1 py-1.5 text-center text-xs font-semibold leading-tight transition hover:border-brand-500 hover:bg-brand-50 active:scale-95"
+              >
+                <span className={mode === 'easy' ? 'text-3xl' : 'text-2xl'}>{v.icon}</span>
+                {v.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <ParamPanel
         schema={def.schema}
         values={res.params}

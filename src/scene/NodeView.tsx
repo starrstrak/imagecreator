@@ -42,12 +42,15 @@ function NodeViewImpl({ id, ghost = false }: Props) {
   const res = resolveNode(nodes, id)
   const def = res ? getPart(res.node.type) : undefined
   const paramsKey = res ? hashOf(res.params) : ''
+  // La construction dépend du parent uniquement si la pièce le suit
+  const followed = !!(res && def?.fit && res.node.follow && res.parentProvided)
+  const parentKey = followed ? ((res!.parentProvided as { key?: string }).key ?? '') : ''
 
   // Construction de la géométrie : uniquement quand les paramètres effectifs changent
   const built = useMemo(() => {
     if (!res || !def) return null
     try {
-      const obj = def.build(res.params, { parent: res.parentProvided })
+      const obj = def.build(res.params, { parent: followed ? res.parentProvided : undefined })
       addOutlines(obj)
       return obj
     } catch (err) {
@@ -55,7 +58,7 @@ function NodeViewImpl({ id, ghost = false }: Props) {
       return null
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [def, paramsKey])
+  }, [def, paramsKey, parentKey, followed])
 
   useEffect(
     () => () => {

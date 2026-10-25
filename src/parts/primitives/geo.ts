@@ -247,3 +247,52 @@ export function xf(g: THREE.BufferGeometry, x = 0, y = 0, z = 0, rx = 0, ry = 0,
   c.applyMatrix4(m)
   return c
 }
+
+/** Arrondit un polygone fermé par subdivisions de Chaikin (q = part de coupe, 0.05..0.45). */
+export function roundPoly(pts: [number, number][], q = 0.25, iter = 2): [number, number][] {
+  let cur = pts
+  for (let k = 0; k < iter; k++) {
+    const out: [number, number][] = []
+    for (let i = 0; i < cur.length; i++) {
+      const a = cur[i]
+      const b = cur[(i + 1) % cur.length]
+      out.push([a[0] + (b[0] - a[0]) * q, a[1] + (b[1] - a[1]) * q])
+      out.push([a[0] + (b[0] - a[0]) * (1 - q), a[1] + (b[1] - a[1]) * (1 - q)])
+    }
+    cur = out
+  }
+  return cur
+}
+
+/** Découpe un polygone par la droite horizontale y = cut (Sutherland–Hodgman). keepBelow : garde y ≤ cut. */
+export function clipPolyY(pts: [number, number][], cut: number, keepBelow: boolean): [number, number][] {
+  const inside = (p: [number, number]) => (keepBelow ? p[1] <= cut : p[1] >= cut)
+  const out: [number, number][] = []
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i]
+    const b = pts[(i + 1) % pts.length]
+    const ia = inside(a)
+    const ib = inside(b)
+    if (ia) out.push(a)
+    if (ia !== ib) {
+      const t = (cut - a[1]) / (b[1] - a[1])
+      out.push([a[0] + (b[0] - a[0]) * t, cut])
+    }
+  }
+  return out
+}
+
+/** Forme THREE depuis des points. */
+export function shapeFromPts(pts: [number, number][], holes: [number, number][][] = []): THREE.Shape {
+  const s = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y)))
+  for (const h of holes) s.holes.push(new THREE.Path(h.map(([x, y]) => new THREE.Vector2(x, y))))
+  return s
+}
+
+/** Angles d'Euler (degrés, ordre XYZ) d'un repère défini par ses trois axes locaux exprimés dans le repère parent. */
+export function eulerFromBasis(x: THREE.Vector3, y: THREE.Vector3, z: THREE.Vector3): [number, number, number] {
+  const m = new THREE.Matrix4().makeBasis(x.clone().normalize(), y.clone().normalize(), z.clone().normalize())
+  const e = new THREE.Euler().setFromRotationMatrix(m, 'XYZ')
+  const r = 180 / Math.PI
+  return [e.x * r, e.y * r, e.z * r]
+}

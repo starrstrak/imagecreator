@@ -66,8 +66,13 @@ export interface Handle {
   ratio: number
 }
 
+/** Données exposées par une pièce à ses enfants. `key` change quand les données changent. */
+export interface Provided {
+  key: string
+}
+
 export interface BuildContext {
-  /** Données exposées par la pièce parente (ancrages, surfaces…) */
+  /** Données exposées par la pièce parente (uniquement si la pièce la « suit ») */
   parent?: unknown
 }
 
@@ -95,12 +100,21 @@ export interface PartDefinition {
   provide?: (p: ParamValues) => unknown
   /** Adaptation à la pièce parente (ex. jante qui suit la roue) */
   fit?: (parentProvided: unknown, own: ParamValues, parentParams: ParamValues) => FitResult
+  /** Variantes prêtes à l'emploi : un clic règle plusieurs paramètres d'un coup */
+  variants?: PartVariant[]
   /** Construit la géométrie paramétrique (repère local, mètres, Y vers le haut) */
   build: (p: ParamValues, ctx: BuildContext) => THREE.Object3D
   /** Poignées 3D */
   handles?: (p: ParamValues) => Handle[]
   /** Animation : clé d'un paramètre 0..1 animable (ex. ouverture de porte) */
   animate?: { param: string; label: string; from: number; to: number }
+}
+
+export interface PartVariant {
+  id: string
+  label: string
+  icon: string
+  params: ParamValues
 }
 
 export interface ModuleDefinition {
